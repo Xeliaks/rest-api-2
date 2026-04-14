@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Tasks API",
-    "description": "REST collection for the Spring Boot Tasks API (in-memory). Import into Postman or Insomnia.\n\n1. Start the app: `mvn spring-boot:run`\n2. Run **Create task** first — it saves `taskId` for the other requests.\n3. Or set collection variables `baseUrl` and `taskId` yourself.\n\nOpenAPI: `{{baseUrl}}/v3/api-docs` · Swagger UI: `{{baseUrl}}/swagger-ui.html`",
+    "description": "Postman collection for the Spring Boot Tasks API (in-memory JSON CRUD + HAL hypermedia).\n\n**Setup**\n1. Start the app: `mvn spring-boot:run`\n2. Run **Create task** under **Tasks** — it saves `taskId` from the response.\n3. Optionally set `baseUrl`, `page`, and `pageSize` on the collection.\n\n**Folders**\n- **Tasks** — plain JSON at `/api/tasks`\n- **Tasks (hypermedia)** — HAL at `/api/hypermedia/tasks` (pagination + `_links`)\n- **OpenAPI** — raw OpenAPI 3 JSON\n\nOpenAPI: `{{baseUrl}}/v3/api-docs` · Swagger UI: `{{baseUrl}}/swagger-ui.html`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -12,11 +12,20 @@
     {
       "key": "taskId",
       "value": ""
+    },
+    {
+      "key": "page",
+      "value": "0"
+    },
+    {
+      "key": "pageSize",
+      "value": "10"
     }
   ],
   "item": [
     {
       "name": "Tasks",
+      "description": "Classic REST JSON under `/api/tasks`.",
       "item": [
         {
           "name": "List tasks",
@@ -24,7 +33,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/api/tasks",
-            "description": "Returns all tasks (may be empty)."
+            "description": "Returns all tasks as a JSON array (may be empty)."
           }
         },
         {
@@ -67,7 +76,7 @@
               "raw": "{\n  \"title\": \"Buy groceries\",\n  \"description\": \"Milk, bread, eggs\",\n  \"completed\": false\n}"
             },
             "url": "{{baseUrl}}/api/tasks",
-            "description": "Creates a task. On success, saves returned `id` into `taskId`."
+            "description": "Creates a task. On success, saves returned `id` into collection variable `taskId`."
           }
         },
         {
@@ -118,6 +127,40 @@
       ]
     },
     {
+      "name": "Tasks (hypermedia)",
+      "description": "HAL responses: `_links`, paged `_embedded.tasks`, and `page` metadata.",
+      "item": [
+        {
+          "name": "List tasks (paged HAL)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/hal+json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/hypermedia/tasks?page={{page}}&size={{pageSize}}",
+            "description": "Returns a HAL paged document: `_embedded.tasks`, `page` (size, number, totalElements, totalPages), and `_links` (`self`, `first`, `last`, `next`, `prev` when applicable). Each embedded task includes its own `_links`."
+          }
+        },
+        {
+          "name": "Get task by id (HAL)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/hal+json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/hypermedia/tasks/{{taskId}}",
+            "description": "Single task with `_links.self`, `_links.collection`, and `_links.alternate` pointing at the plain JSON resource `/api/tasks/{id}`."
+          }
+        }
+      ]
+    },
+    {
       "name": "OpenAPI",
       "item": [
         {
@@ -126,7 +169,7 @@
             "method": "GET",
             "header": [],
             "url": "{{baseUrl}}/v3/api-docs",
-            "description": "Same specification Swagger UI uses (OpenAPI 3 JSON)."
+            "description": "OpenAPI 3 JSON used by Swagger UI."
           }
         }
       ]

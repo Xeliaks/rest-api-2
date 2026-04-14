@@ -15,7 +15,9 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Tasks API")
                         .version("1.0.0")
-                        .description("Example REST API for tasks. Data is stored in memory and resets when the app stops.")
+                        .description(
+                                "Example REST API for tasks. Data is stored in memory and resets when the app stops. "
+                                        + "Paginated HAL resources live under /api/hypermedia/tasks.")
                         .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")));
     }
 }

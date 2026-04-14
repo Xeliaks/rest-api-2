@@ -103,5 +103,6 @@ class TasksHttpApiIT {
         assertThat(docs.getBody()).isNotNull();
         assertThat(docs.getBody()).contains("Tasks");
         assertThat(docs.getBody()).contains("/api/tasks");
+        assertThat(docs.getBody()).contains("/api/hypermedia/tasks");
     }
 }

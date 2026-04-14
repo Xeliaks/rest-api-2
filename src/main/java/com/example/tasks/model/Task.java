@@ -2,11 +2,13 @@ package com.example.tasks.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Relation(collectionRelation = "tasks", itemRelation = "task")
 @Schema(description = "A task item")
 public class Task {
 

@@ -7,6 +7,8 @@ import com.example.tasks.model.Task;
 import com.example.tasks.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.UUID;
 
@@ -48,6 +50,25 @@ class TaskServiceTest {
     @Test
     void findAll_isEmptyInitially() {
         assertThat(service.findAll()).isEmpty();
+    }
+
+    @Test
+    void findAll_pageable_returnsStableSlicesOrderedByCreatedAt() {
+        service.create(createRequest("a", null, false));
+        service.create(createRequest("b", null, false));
+        service.create(createRequest("c", null, false));
+
+        Page<Task> first = service.findAll(PageRequest.of(0, 2));
+        assertThat(first.getTotalElements()).isEqualTo(3);
+        assertThat(first.getContent()).hasSize(2);
+        assertThat(first.getContent().get(0).getTitle()).isEqualTo("a");
+        assertThat(first.getContent().get(1).getTitle()).isEqualTo("b");
+        assertThat(first.hasNext()).isTrue();
+
+        Page<Task> second = service.findAll(PageRequest.of(1, 2));
+        assertThat(second.getContent()).hasSize(1);
+        assertThat(second.getContent().get(0).getTitle()).isEqualTo("c");
+        assertThat(second.hasNext()).isFalse();
     }
 
     @Test

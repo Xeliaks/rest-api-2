@@ -4,10 +4,14 @@ import com.example.tasks.dto.TaskCreateRequest;
 import com.example.tasks.dto.TaskPatchRequest;
 import com.example.tasks.dto.TaskUpdateRequest;
 import com.example.tasks.model.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +25,23 @@ public class TaskService {
 
     public List<Task> findAll() {
         return new ArrayList<>(store.values());
+    }
+
+    /**
+     * Tasks ordered by creation time (stable paging for the in-memory store).
+     */
+    public Page<Task> findAll(Pageable pageable) {
+        List<Task> all = new ArrayList<>(store.values());
+        all.sort(Comparator
+                .comparing(Task::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(t -> t.getTitle() != null ? t.getTitle() : ""));
+        int total = all.size();
+        int page = Math.max(0, pageable.getPageNumber());
+        int size = Math.max(1, pageable.getPageSize());
+        int start = (int) Math.min((long) page * size, total);
+        int end = Math.min(start + size, total);
+        List<Task> slice = start >= end ? List.of() : all.subList(start, end);
+        return new PageImpl<>(slice, pageable.withPage(page), total);
     }
 
     public Optional<Task> findById(UUID id) {
