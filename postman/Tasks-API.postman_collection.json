@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Tasks API",
-    "description": "Postman collection for the Spring Boot Tasks API (in-memory JSON CRUD + HAL hypermedia).\n\n**Setup**\n1. Start the app: `mvn spring-boot:run`\n2. Run **Create task** under **Tasks** — it saves `taskId` from the response.\n3. Optionally set `baseUrl`, `page`, and `pageSize` on the collection.\n\n**Folders**\n- **Tasks** — plain JSON at `/api/tasks`\n- **Tasks (hypermedia)** — HAL at `/api/hypermedia/tasks` (pagination + `_links`)\n- **OpenAPI** — raw OpenAPI 3 JSON\n\nOpenAPI: `{{baseUrl}}/v3/api-docs` · Swagger UI: `{{baseUrl}}/swagger-ui.html`",
+    "name": "Tasks & Students API",
+    "description": "Postman collection for the Spring Boot API covering Tasks (in-memory JSON CRUD + HAL hypermedia) and Students.\n\n**Setup**\n1. Start the app: `mvn spring-boot:run`\n2. Run **Create task** under **Tasks** — it saves `taskId` from the response.\n3. Run **Create student** under **Students** — it saves `studentId` from the response.\n4. Optionally set `baseUrl`, `page`, and `pageSize` on the collection.\n\n**Folders**\n- **Tasks** — plain JSON at `/api/tasks`\n- **Tasks (hypermedia)** — HAL at `/api/hypermedia/tasks` (pagination + `_links`)\n- **Students** — student creation and validation testing\n- **OpenAPI** — raw OpenAPI 3 JSON\n\nOpenAPI: `{{baseUrl}}/v3/api-docs` · Swagger UI: `{{baseUrl}}/swagger-ui.html`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -11,6 +11,10 @@
     },
     {
       "key": "taskId",
+      "value": ""
+    },
+    {
+      "key": "studentId",
       "value": ""
     },
     {
@@ -122,6 +126,64 @@
             "header": [],
             "url": "{{baseUrl}}/api/tasks/{{taskId}}",
             "description": "204 No Content on success."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "description": "Endpoints for managing students.",
+      "item": [
+        {
+          "name": "Create student (Success)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const body = pm.response.json();",
+                  "    if (body && body.id) {",
+                  "        pm.collectionVariables.set('studentId', body.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": "{{baseUrl}}/api/students",
+            "description": "Creates a new student. On success, saves the returned `id` into the collection variable `studentId`."
+          }
+        },
+        {
+          "name": "Create student (Validation Error)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"\",\n  \"lastName\": \"Doe\",\n  \"email\": \"not-an-email\"\n}"
+            },
+            "url": "{{baseUrl}}/api/students",
+            "description": "Tests validation constraints by sending a blank first name and an invalid email format. Should return a 400 Bad Request."
           }
         }
       ]
