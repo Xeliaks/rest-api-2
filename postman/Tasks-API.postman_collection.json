@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Tasks & Students API",
-    "description": "Postman collection for the Spring Boot API covering Tasks (in-memory JSON CRUD + HAL hypermedia) and Students.\n\n**Setup**\n1. Start the app: `mvn spring-boot:run`\n2. Run **Create task** under **Tasks** — it saves `taskId` from the response.\n3. Run **Create student** under **Students** — it saves `studentId` from the response.\n4. Optionally set `baseUrl`, `page`, and `pageSize` on the collection.\n\n**Folders**\n- **Tasks** — plain JSON at `/api/tasks`\n- **Tasks (hypermedia)** — HAL at `/api/hypermedia/tasks` (pagination + `_links`)\n- **Students** — student creation and validation testing\n- **OpenAPI** — raw OpenAPI 3 JSON\n\nOpenAPI: `{{baseUrl}}/v3/api-docs` · Swagger UI: `{{baseUrl}}/swagger-ui.html`",
+    "description": "Postman collection for the Spring Boot API covering Tasks and Students (in-memory JSON CRUD + HAL hypermedia).\n\n**Setup**\n1. Start the app: `mvn spring-boot:run`\n2. Run **Create task** under **Tasks** — it saves `taskId` from the response.\n3. Run **Create student** under **Students** — it saves `studentId` from the response.\n4. Optionally set `baseUrl`, `page`, and `pageSize` on the collection.\n\n**Folders**\n- **Tasks** — plain JSON at `/api/tasks`\n- **Students** — plain JSON at `/api/students`\n- **Tasks (hypermedia)** — HAL at `/api/hypermedia/tasks` (pagination + `_links`)\n- **Students (hypermedia)** — HAL at `/api/hypermedia/students` (pagination + `_links`)\n- **OpenAPI** — raw OpenAPI 3 JSON\n\nOpenAPI: `{{baseUrl}}/v3/api-docs` · Swagger UI: `{{baseUrl}}/swagger-ui.html`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -135,6 +135,24 @@
       "description": "Endpoints for managing students.",
       "item": [
         {
+          "name": "List students (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/students?page={{page}}&size={{pageSize}}",
+            "description": "Fetches a paginated list of students. Returns a `content` array along with pagination metadata."
+          }
+        },
+        {
+          "name": "Get student by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/students/{{studentId}}",
+            "description": "Uses collection variable `studentId` (set by **Create student** or paste a UUID)."
+          }
+        },
+        {
           "name": "Create student (Success)",
           "event": [
             {
@@ -218,6 +236,40 @@
             ],
             "url": "{{baseUrl}}/api/hypermedia/tasks/{{taskId}}",
             "description": "Single task with `_links.self`, `_links.collection`, and `_links.alternate` pointing at the plain JSON resource `/api/tasks/{id}`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students (hypermedia)",
+      "description": "HAL responses: `_links`, paged `_embedded.students`, and `page` metadata.",
+      "item": [
+        {
+          "name": "List students (paged HAL)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/hal+json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/hypermedia/students?page={{page}}&size={{pageSize}}",
+            "description": "Returns a HAL paged document: `_embedded.students`, `page` (size, number, totalElements, totalPages), and `_links` (`self`, `first`, `last`, `next`, `prev` when applicable). Each embedded student includes its own `_links`."
+          }
+        },
+        {
+          "name": "Get student by id (HAL)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/hal+json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/hypermedia/students/{{studentId}}",
+            "description": "Single student with `_links.self`, `_links.collection`, and `_links.alternate` pointing at the plain JSON resource `/api/students/{id}`."
           }
         }
       ]

@@ -3,6 +3,10 @@ package com.example.tasks.model;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.springframework.hateoas.server.core.Relation;
+
+
+@Relation(collectionRelation = "students", itemRelation = "student")
 public class Student {
 
     private UUID id;
